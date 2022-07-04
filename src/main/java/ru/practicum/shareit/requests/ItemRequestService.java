@@ -43,10 +43,10 @@ public class ItemRequestService {
     public ItemRequestEntityDto update(int requesterId, int requestId,
                                        ItemRequestUpdateDto requestDto) {
 
-        User requester = userService.checkAndGetUser(requesterId);
+        userService.checkAndGetUser(requesterId);
         ItemRequest request = checkAndGetRequest(requestId);
 
-        if (request.getRequester().getId() != requester.getId()) {
+        if (request.getRequester().getId() != requesterId) {
             throw new ItemAccessDeniedException("Нельзя изменять чужие запросы");
         }
 
