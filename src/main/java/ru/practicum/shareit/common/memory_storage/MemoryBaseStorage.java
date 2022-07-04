@@ -6,7 +6,7 @@ import java.util.Map;
 public class MemoryBaseStorage {
 
     private int counter = 0;
-    private Map<Integer, Object> objects = new HashMap<>();
+    private final Map<Integer, Object> objects = new HashMap<>();
 
     protected int add(Object o) {
         counter++;

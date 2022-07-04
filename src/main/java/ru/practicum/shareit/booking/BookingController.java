@@ -5,9 +5,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingCreationDto;
 import ru.practicum.shareit.booking.dto.BookingEntityDto;
 import ru.practicum.shareit.booking.dto.BookingUpdateDto;
-import ru.practicum.shareit.item.dto.ItemEntityDto;
-import ru.practicum.shareit.item.dto.ItemUpdateDto;
-
 import javax.validation.Valid;
 import java.util.List;
 

@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user.storage;
 
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.common.memory_storage.MemoryBaseStorage;
 import ru.practicum.shareit.user.User;

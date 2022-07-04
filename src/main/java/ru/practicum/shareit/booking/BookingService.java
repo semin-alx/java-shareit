@@ -21,10 +21,6 @@ import java.util.stream.Collectors;
 @Service
 public class BookingService {
 
-    private final String ERR_WRONG_RENT_PERIOD = "Период аренды указан неверно";
-    private final String ERR_ITEM_IS_BUSY = "Вещь на указанный период недоступна";
-    private final String ERR_BOOKING_BY_ID_NOT_FOUND = "Заказ по идентификатору не найден";
-
     private final BookingStorage bookingStorage;
     private final ItemService itemService;
     private final UserService userService;
@@ -106,7 +102,7 @@ public class BookingService {
                                        int itemId, int exceptBookingId) {
 
         if (start.isAfter(end)) {
-            throw new WrongRentPeriodException(ERR_WRONG_RENT_PERIOD);
+            throw new WrongRentPeriodException("Период аренды указан неверно");
         }
 
         List<Booking> bookingList = bookingStorage.getBookingByItem(itemId);
@@ -122,16 +118,12 @@ public class BookingService {
                 return false;
             }
 
-            if ((start.compareTo(b.getEnd()) >= 0) || (end.compareTo(b.getStart()) < 0)) {
-                return false;
-            }
-
-            return true;
+            return (start.compareTo(b.getEnd()) < 0) && (end.compareTo(b.getStart()) >= 0);
 
         }).findFirst();
 
         if (hinder.isPresent()) {
-            throw new ItemBusyException(ERR_ITEM_IS_BUSY);
+            throw new ItemBusyException("Вещь на указанный период недоступна");
         }
 
     }
@@ -139,7 +131,7 @@ public class BookingService {
     public Booking checkAndGetBooking(int id) {
         Optional<Booking> booking = bookingStorage.getById(id);
         if (!booking.isPresent()) {
-            throw new ItemNotFoundException(ERR_BOOKING_BY_ID_NOT_FOUND);
+            throw new ItemNotFoundException("Заказ по идентификатору не найден");
         } else {
             return booking.get();
         }

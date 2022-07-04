@@ -43,7 +43,12 @@ public class RestErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse MethodArgumentNotValidHandler(final MethodArgumentNotValidException e) {
-        return new ErrorResponse(e.getFieldError().getDefaultMessage());
+
+        if (e.getFieldError().getDefaultMessage() == null) {
+            return new ErrorResponse(e.getMessage());
+        } else {
+            return new ErrorResponse(e.getFieldError().getDefaultMessage());
+        }
     }
 
     @ExceptionHandler

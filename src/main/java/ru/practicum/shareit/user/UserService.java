@@ -18,15 +18,6 @@ public class UserService {
 
     private final UserStorage userStorage;
 
-    private final String ERR_USER_WITH_THIS_NAME_ALREADY_EXISTS =
-            "Пользователь с таким именем уже существует";
-
-    private final String ERR_USER_WITH_THIS_EMAIL_ALREADY_EXISTS =
-            "Пользователь с таким email уже существует";
-
-    private final String ERR_USER_BY_ID_NOT_FOUND =
-            "Пользователь с таким id не найден";
-
     @Autowired
     public UserService(UserStorage userStorage) {
         this.userStorage = userStorage;
@@ -37,11 +28,11 @@ public class UserService {
         User user = new User(null, userDto.getName(), userDto.getEmail());
 
         if (userStorage.findByEmail(user.getName()).isPresent()) {
-            throw new UserAlreadyExistsException(ERR_USER_WITH_THIS_NAME_ALREADY_EXISTS);
+            throw new UserAlreadyExistsException("Пользователь с таким именем уже существует");
         }
 
         if (userStorage.findByEmail(user.getEmail()).isPresent()) {
-            throw new UserAlreadyExistsException(ERR_USER_WITH_THIS_EMAIL_ALREADY_EXISTS);
+            throw new UserAlreadyExistsException("Пользователь с таким email уже существует");
         }
 
         user = userStorage.create(user);
@@ -57,7 +48,7 @@ public class UserService {
         if (userDto.getName() != null) {
             user1 = userStorage.findByName(userDto.getName());
             if (user1.isPresent() && (user1.get().getId() != userId)) {
-                throw new UserAlreadyExistsException(ERR_USER_WITH_THIS_NAME_ALREADY_EXISTS);
+                throw new UserAlreadyExistsException("Пользователь с таким именем уже существует");
             } else {
                 user0.setName(userDto.getName());
             }
@@ -66,7 +57,7 @@ public class UserService {
         if (userDto.getEmail() != null) {
             user1 = userStorage.findByEmail(userDto.getEmail());
             if (user1.isPresent() && (user1.get().getId() != userId)) {
-                throw new UserAlreadyExistsException(ERR_USER_WITH_THIS_EMAIL_ALREADY_EXISTS);
+                throw new UserAlreadyExistsException("Пользователь с таким email уже существует");
             } else {
                 user0.setEmail(userDto.getEmail());
             }
@@ -97,7 +88,7 @@ public class UserService {
     public User checkAndGetUser(int id) {
         Optional<User> user = userStorage.getById(id);
         if (!user.isPresent()) {
-            throw new UserNotFoundException(ERR_USER_BY_ID_NOT_FOUND);
+            throw new UserNotFoundException("Пользователь с таким id не найден");
         } else {
             return user.get();
         }

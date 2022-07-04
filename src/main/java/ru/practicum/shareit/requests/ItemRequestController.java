@@ -2,9 +2,6 @@ package ru.practicum.shareit.requests;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.ItemCreationDto;
-import ru.practicum.shareit.item.dto.ItemEntityDto;
-import ru.practicum.shareit.item.dto.ItemUpdateDto;
 import ru.practicum.shareit.requests.dto.ItemRequestCreationDto;
 import ru.practicum.shareit.requests.dto.ItemRequestEntityDto;
 import ru.practicum.shareit.requests.dto.ItemRequestUpdateDto;

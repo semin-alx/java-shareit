@@ -23,19 +23,14 @@ import java.util.stream.Collectors;
 @Service
 public class ItemService {
 
-    private final String ERR_ITEM_BY_ID_NOT_FOUND = "Вещь с указанным идентификатором не найдена";
-    private final String ERR_ALEN_ITEM_ACCESS_DENIED = "Доступ к чужим вещам запрещен";
-
     private final ItemStorage itemStorage;
     private final UserService userService;
-    private final UserStorage userStorage;
     private final ItemRequestService requestService;
 
     @Autowired
     public ItemService(ItemStorage itemStorage, UserService userService, UserStorage userStorage, ItemRequestService requestService) {
         this.itemStorage = itemStorage;
         this.userService = userService;
-        this.userStorage = userStorage;
         this.requestService = requestService;
     }
 
@@ -64,7 +59,7 @@ public class ItemService {
         Item item0 = checkAndGetItem(itemId);
 
         if (item0.getOwner().getId() != ownerId) {
-            throw new ItemAccessDeniedException(ERR_ALEN_ITEM_ACCESS_DENIED);
+            throw new ItemAccessDeniedException("Доступ к чужим вещам запрещен");
         }
 
         if (itemDto.getName() != null) {
@@ -114,7 +109,7 @@ public class ItemService {
     public Item checkAndGetItem(int id) {
         Optional<Item> item = itemStorage.getById(id);
         if (!item.isPresent()) {
-            throw new ItemNotFoundException(ERR_ITEM_BY_ID_NOT_FOUND);
+            throw new ItemNotFoundException("Вещь с указанным идентификатором не найдена");
         } else {
             return item.get();
         }

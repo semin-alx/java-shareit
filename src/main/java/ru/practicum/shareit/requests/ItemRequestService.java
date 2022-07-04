@@ -4,9 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.common.error_handling.exception.ItemAccessDeniedException;
 import ru.practicum.shareit.common.error_handling.exception.RequestNotFoundException;
-import ru.practicum.shareit.item.ItemMapper;
-import ru.practicum.shareit.item.dto.ItemEntityDto;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.requests.dto.ItemRequestCreationDto;
 import ru.practicum.shareit.requests.dto.ItemRequestEntityDto;
 import ru.practicum.shareit.requests.dto.ItemRequestUpdateDto;
@@ -24,9 +21,6 @@ public class ItemRequestService {
 
     private final ItemRequestStorage itemRequestStorage;
     private final UserService userService;
-
-    private final String ERR_REQUEST_BY_ID_NOT_FOUND = "Запрос по идентификатору не найден";
-    private final String ERR_UPDATE_ACCESS_DENIED = "Нельзя изменять чужие запросы";
 
     @Autowired
     public ItemRequestService(ItemRequestStorage itemRequestStorage, UserService userService) {
@@ -53,7 +47,7 @@ public class ItemRequestService {
         ItemRequest request = checkAndGetRequest(requestId);
 
         if (request.getRequester().getId() != requester.getId()) {
-            throw new ItemAccessDeniedException(ERR_UPDATE_ACCESS_DENIED);
+            throw new ItemAccessDeniedException("Нельзя изменять чужие запросы");
         }
 
         request.setDescription(requestDto.getDescription());
@@ -82,7 +76,7 @@ public class ItemRequestService {
     public ItemRequest checkAndGetRequest(int id) {
         Optional<ItemRequest> request = itemRequestStorage.getById(id);
         if (!request.isPresent()) {
-            throw new RequestNotFoundException(ERR_REQUEST_BY_ID_NOT_FOUND);
+            throw new RequestNotFoundException("Запрос по идентификатору не найден");
         } else {
             return request.get();
         }

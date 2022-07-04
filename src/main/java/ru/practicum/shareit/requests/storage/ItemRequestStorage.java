@@ -8,10 +8,13 @@ import java.util.Optional;
 public interface ItemRequestStorage {
 
     ItemRequest create(ItemRequest itemRequest);
+
     ItemRequest update(ItemRequest itemRequest);
+
     void delete(int id);
 
     Optional<ItemRequest> getById(int id);
+
     List<ItemRequest> getItemRequestAll();
 
 }
