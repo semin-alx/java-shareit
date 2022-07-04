@@ -18,31 +18,31 @@ public class RestErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse ConstraintViolationHandler(final ConstraintViolationException e) {
+    public ErrorResponse constraintViolationHandler(final ConstraintViolationException e) {
         return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse UserAlreadyExistsHandler(final UserAlreadyExistsException e) {
+    public ErrorResponse userAlreadyExistsHandler(final UserAlreadyExistsException e) {
         return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse UserNotFoundHandler(final UserNotFoundException e) {
+    public ErrorResponse userNotFoundHandler(final UserNotFoundException e) {
         return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse ItemNotFoundHandler(final ItemNotFoundException e) {
+    public ErrorResponse itemNotFoundHandler(final ItemNotFoundException e) {
         return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse MethodArgumentNotValidHandler(final MethodArgumentNotValidException e) {
+    public ErrorResponse methodArgumentNotValidHandler(final MethodArgumentNotValidException e) {
 
         if (e.getFieldError().getDefaultMessage() == null) {
             return new ErrorResponse(e.getMessage());
@@ -53,13 +53,13 @@ public class RestErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse MissingRequestHeaderHandler(final MissingRequestHeaderException e) {
+    public ErrorResponse missingRequestHeaderHandler(final MissingRequestHeaderException e) {
         return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse ItemAccessDeniedHandler(final ItemAccessDeniedException e) {
+    public ErrorResponse itemAccessDeniedHandler(final ItemAccessDeniedException e) {
         return new ErrorResponse(e.getMessage());
     }
 

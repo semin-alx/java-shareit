@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.METHOD, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy= NullOrNotEmptyValidator.class)
+@Constraint(validatedBy = NullOrNotEmptyValidator.class)
 public @interface NullOrNotEmptyConstraint {
     String message() default "Значение не должно быть пустым или должно быть null";
     Class<?>[] groups() default {};
