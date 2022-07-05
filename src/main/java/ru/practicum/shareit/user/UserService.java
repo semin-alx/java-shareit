@@ -4,11 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.common.error_handling.exception.UserAlreadyExistsException;
 import ru.practicum.shareit.common.error_handling.exception.UserNotFoundException;
-import ru.practicum.shareit.user.dto.UserCreationDto;
-import ru.practicum.shareit.user.dto.UserEntityDto;
-import ru.practicum.shareit.user.dto.UserUpdateDto;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.storage.UserStorage;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,9 +20,9 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
-    public UserEntityDto create(UserCreationDto userDto) {
+    public UserDto create(UserDto userDto) {
 
-        User user = new User(null, userDto.getName(), userDto.getEmail());
+        User user = UserMapper.toUser(userDto);
 
         if (userStorage.findByEmail(user.getName()).isPresent()) {
             throw new UserAlreadyExistsException("Пользователь с таким именем уже существует");
@@ -36,36 +33,38 @@ public class UserService {
         }
 
         user = userStorage.create(user);
-        return UserMapper.toUserEntityDto(user);
+        return UserMapper.toUserDto(user);
 
     }
 
-    public UserEntityDto update(int userId, UserUpdateDto userDto) {
+    public UserDto update(int userId, UserDto userDto) {
 
-        User user0 = checkAndGetUser(userId);
+        User userDB = checkAndGetUser(userId);
+        User userNew = UserMapper.toUser(userDto);
+
         Optional<User> user1;
 
-        if (userDto.getName() != null) {
-            user1 = userStorage.findByName(userDto.getName());
+        if (userNew.getName() != null) {
+            user1 = userStorage.findByName(userNew.getName());
             if (user1.isPresent() && (user1.get().getId() != userId)) {
                 throw new UserAlreadyExistsException("Пользователь с таким именем уже существует");
             } else {
-                user0.setName(userDto.getName());
+                userDB.setName(userNew.getName());
             }
         }
 
-        if (userDto.getEmail() != null) {
-            user1 = userStorage.findByEmail(userDto.getEmail());
+        if (userNew.getEmail() != null) {
+            user1 = userStorage.findByEmail(userNew.getEmail());
             if (user1.isPresent() && (user1.get().getId() != userId)) {
                 throw new UserAlreadyExistsException("Пользователь с таким email уже существует");
             } else {
-                user0.setEmail(userDto.getEmail());
+                userDB.setEmail(userDto.getEmail());
             }
         }
 
-        userStorage.update(user0);
+        userDB = userStorage.update(userDB);
 
-        return UserMapper.toUserEntityDto(user0);
+        return UserMapper.toUserDto(userDB);
 
     }
 
@@ -74,14 +73,14 @@ public class UserService {
         userStorage.delete(id);
     }
 
-    public UserEntityDto getUserById(int id) {
+    public UserDto getUserById(int id) {
         User user = checkAndGetUser(id);
-        return UserMapper.toUserEntityDto(user);
+        return UserMapper.toUserDto(user);
     }
 
-    public List<UserEntityDto> getUsers() {
+    public List<UserDto> getUsers() {
         return userStorage.getUsers().stream()
-                .map(UserMapper::toUserEntityDto)
+                .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
     }
 

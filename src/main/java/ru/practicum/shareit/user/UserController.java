@@ -3,9 +3,8 @@ package ru.practicum.shareit.user;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.user.dto.UserCreationDto;
-import ru.practicum.shareit.user.dto.UserEntityDto;
-import ru.practicum.shareit.user.dto.UserUpdateDto;
+import ru.practicum.shareit.common.controller.RestAction;
+import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -23,22 +22,24 @@ public class UserController {
     }
 
     @PostMapping
-    public UserEntityDto create(@Valid @RequestBody UserCreationDto userDto) {
+    @Validated({RestAction.Create.class})
+    public UserDto create(@Valid @RequestBody UserDto userDto) {
         return userService.create(userDto);
     }
 
     @PatchMapping(value = "/{id}")
-    public UserEntityDto update(@PathVariable int id, @Valid @RequestBody UserUpdateDto userDto) {
+    @Validated({RestAction.Update.class})
+    public UserDto update(@PathVariable int id, @Valid @RequestBody UserDto userDto) {
         return userService.update(id, userDto);
     }
 
     @GetMapping
-    public List<UserEntityDto> getUsers() {
+    public List<UserDto> getUsers() {
         return userService.getUsers();
     }
 
     @GetMapping(value = "/{id}")
-    public UserEntityDto getUser(@PathVariable int id) {
+    public UserDto getUser(@PathVariable int id) {
         return userService.getUserById(id);
     }
 

@@ -3,11 +3,14 @@ package ru.practicum.shareit.booking.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import ru.practicum.shareit.booking.BookingStatus;
+
+import javax.validation.constraints.FutureOrPresent;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
-public class BookingEntityDto {
+public class BookingDto {
 
     @Data
     @AllArgsConstructor
@@ -23,11 +26,11 @@ public class BookingEntityDto {
         private String name;
     }
 
-    private int id;
+    private Integer id;
     private LocalDate start;
     private LocalDate end;
-    private BookingEntityDto.Item item;
-    private BookingEntityDto.User booker;
+    private BookingDto.Item item;
+    private BookingDto.User booker;
     private BookingStatus status;
     private String feedback;
 

@@ -3,7 +3,7 @@ package ru.practicum.shareit.booking;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingCreationDto;
-import ru.practicum.shareit.booking.dto.BookingEntityDto;
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingUpdateDto;
 import javax.validation.Valid;
 import java.util.List;
@@ -20,15 +20,15 @@ public class BookingController {
     }
 
     @PostMapping
-    public BookingEntityDto create(@RequestHeader("X-Sharer-User-Id") int userId,
-                                   @Valid @RequestBody BookingCreationDto bookingDto) {
+    public BookingDto create(@RequestHeader("X-Sharer-User-Id") int userId,
+                             @Valid @RequestBody BookingCreationDto bookingDto) {
         return bookingService.create(userId, bookingDto);
     }
 
     @PatchMapping(value = "/{id}")
-    public BookingEntityDto update(@RequestHeader("X-Sharer-User-Id") int bookerId,
-                                @PathVariable int id,
-                                @Valid @RequestBody BookingUpdateDto bookingDto) {
+    public BookingDto update(@RequestHeader("X-Sharer-User-Id") int bookerId,
+                             @PathVariable int id,
+                             @Valid @RequestBody BookingUpdateDto bookingDto) {
         return bookingService.update(bookerId, id, bookingDto);
     }
 
@@ -38,12 +38,12 @@ public class BookingController {
     }
 
     @GetMapping
-    public List<BookingEntityDto> getBookingAll() {
+    public List<BookingDto> getBookingAll() {
         return bookingService.getBookingAll();
     }
 
     @GetMapping(value = "/{id}")
-    public BookingEntityDto getItem(@PathVariable int id) {
+    public BookingDto getItem(@PathVariable int id) {
         return bookingService.getBookingById(id);
     }
 

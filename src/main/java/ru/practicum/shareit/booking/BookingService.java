@@ -2,7 +2,7 @@ package ru.practicum.shareit.booking;
 
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingCreationDto;
-import ru.practicum.shareit.booking.dto.BookingEntityDto;
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingUpdateDto;
 import ru.practicum.shareit.booking.storage.BookingStorage;
 import ru.practicum.shareit.common.error_handling.exception.ItemBusyException;
@@ -31,7 +31,7 @@ public class BookingService {
         this.userService = userService;
     }
 
-    public BookingEntityDto create(int userId, BookingCreationDto bookingDto) {
+    public BookingDto create(int userId, BookingCreationDto bookingDto) {
 
         Item item = itemService.checkAndGetItem(bookingDto.getItemId());
         User booker = userService.checkAndGetUser(userId);
@@ -47,7 +47,7 @@ public class BookingService {
 
     }
 
-    public BookingEntityDto update(int bookerId, int bookingId, BookingUpdateDto bookingDto) {
+    public BookingDto update(int bookerId, int bookingId, BookingUpdateDto bookingDto) {
 
         User booker = userService.checkAndGetUser(bookerId);
         Booking booking = checkAndGetBooking(bookingId);
@@ -86,12 +86,12 @@ public class BookingService {
         bookingStorage.delete(id);
     }
 
-    public BookingEntityDto getBookingById(int id) {
+    public BookingDto getBookingById(int id) {
         Booking booking = checkAndGetBooking(id);
         return BookingMapper.toBookingEntityDto(booking);
     }
 
-    public List<BookingEntityDto> getBookingAll() {
+    public List<BookingDto> getBookingAll() {
         return bookingStorage.getBookingAll().stream()
                 .map(BookingMapper::toBookingEntityDto)
                 .collect(Collectors.toList());
