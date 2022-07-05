@@ -1,9 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.dto.BookingCreationDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.dto.BookingUpdateDto;
 import ru.practicum.shareit.booking.storage.BookingStorage;
 import ru.practicum.shareit.common.error_handling.exception.ItemBusyException;
 import ru.practicum.shareit.common.error_handling.exception.ItemNotFoundException;
@@ -31,7 +29,7 @@ public class BookingService {
         this.userService = userService;
     }
 
-    public BookingDto create(int userId, BookingCreationDto bookingDto) {
+    public BookingDto create(int userId, BookingDto bookingDto) {
 
         Item item = itemService.checkAndGetItem(bookingDto.getItemId());
         User booker = userService.checkAndGetUser(userId);
@@ -39,45 +37,47 @@ public class BookingService {
         checkAvailableForRent(bookingDto.getStart(), bookingDto.getEnd(),
                 bookingDto.getItemId(), 0);
 
-        Booking booking = new Booking(null, bookingDto.getStart(),
-                bookingDto.getEnd(), item, booker, BookingStatus.WAITING, null);
+        Booking booking = BookingMapper.toBooking(bookingDto);
+        booking.setItem(item);
+        booking.setBooker(booker);
 
         booking = bookingStorage.create(booking);
         return BookingMapper.toBookingEntityDto(booking);
 
     }
 
-    public BookingDto update(int bookerId, int bookingId, BookingUpdateDto bookingDto) {
+    public BookingDto update(int bookerId, int bookingId, BookingDto bookingDto) {
 
-        User booker = userService.checkAndGetUser(bookerId);
-        Booking booking = checkAndGetBooking(bookingId);
+        userService.checkAndGetUser(bookerId);
+        Booking bookingDB = checkAndGetBooking(bookingId);
+        Booking bookingNew = BookingMapper.toBooking(bookingDto);
 
         if (bookingDto.getItemId() != null) {
             Item item = itemService.checkAndGetItem(bookingDto.getItemId());
-            booking.setItem(item);
+            bookingDB.setItem(item);
         }
 
-        if (bookingDto.getStart() != null) {
-            booking.setStart(bookingDto.getStart());
+        if (bookingNew.getStart() != null) {
+            bookingDB.setStart(bookingNew.getStart());
         }
 
-        if (bookingDto.getEnd() != null) {
-            booking.setEnd(bookingDto.getEnd());
+        if (bookingNew.getEnd() != null) {
+            bookingDB.setEnd(bookingNew.getEnd());
         }
 
-        if (bookingDto.getStatus() != null) {
-            booking.setStatus(bookingDto.getStatus());
+        if (bookingNew.getStatus() != null) {
+            bookingDB.setStatus(bookingNew.getStatus());
         }
 
-        if (bookingDto.getFeedback() != null) {
-            booking.setFeedback(bookingDto.getFeedback());
+        if (bookingNew.getFeedback() != null) {
+            bookingDB.setFeedback(bookingNew.getFeedback());
         }
 
-        checkAvailableForRent(booking.getStart(), booking.getEnd(),
-                booking.getItem().getId(), bookingId);
+        checkAvailableForRent(bookingDB.getStart(), bookingDB.getEnd(),
+                bookingDB.getItem().getId(), bookingId);
 
-        booking = bookingStorage.update(booking);
-        return BookingMapper.toBookingEntityDto(booking);
+        bookingDB = bookingStorage.update(bookingDB);
+        return BookingMapper.toBookingEntityDto(bookingDB);
 
     }
 

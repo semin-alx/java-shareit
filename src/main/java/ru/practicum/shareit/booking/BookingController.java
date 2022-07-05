@@ -1,10 +1,11 @@
 package ru.practicum.shareit.booking;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.booking.dto.BookingCreationDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.dto.BookingUpdateDto;
+import ru.practicum.shareit.common.controller.RestAction;
+
 import javax.validation.Valid;
 import java.util.List;
 
@@ -20,15 +21,17 @@ public class BookingController {
     }
 
     @PostMapping
+    @Validated({RestAction.Create.class})
     public BookingDto create(@RequestHeader("X-Sharer-User-Id") int userId,
-                             @Valid @RequestBody BookingCreationDto bookingDto) {
+                             @Valid @RequestBody BookingDto bookingDto) {
         return bookingService.create(userId, bookingDto);
     }
 
     @PatchMapping(value = "/{id}")
+    @Validated({RestAction.Update.class})
     public BookingDto update(@RequestHeader("X-Sharer-User-Id") int bookerId,
                              @PathVariable int id,
-                             @Valid @RequestBody BookingUpdateDto bookingDto) {
+                             @Valid @RequestBody BookingDto bookingDto) {
         return bookingService.update(bookerId, id, bookingDto);
     }
 

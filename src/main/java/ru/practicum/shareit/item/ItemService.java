@@ -4,16 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.common.error_handling.exception.ItemAccessDeniedException;
 import ru.practicum.shareit.common.error_handling.exception.ItemNotFoundException;
-import ru.practicum.shareit.item.dto.ItemCreationDto;
-import ru.practicum.shareit.item.dto.ItemEntityDto;
-import ru.practicum.shareit.item.dto.ItemUpdateDto;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemStorage;
 import ru.practicum.shareit.requests.ItemRequest;
 import ru.practicum.shareit.requests.ItemRequestService;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
-import ru.practicum.shareit.user.storage.UserStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,13 +25,13 @@ public class ItemService {
     private final ItemRequestService requestService;
 
     @Autowired
-    public ItemService(ItemStorage itemStorage, UserService userService, UserStorage userStorage, ItemRequestService requestService) {
+    public ItemService(ItemStorage itemStorage, UserService userService, ItemRequestService requestService) {
         this.itemStorage = itemStorage;
         this.userService = userService;
         this.requestService = requestService;
     }
 
-    public ItemEntityDto create(int userId, ItemCreationDto itemDto) {
+    public ItemDto create(int userId, ItemDto itemDto) {
 
         User owner = userService.checkAndGetUser(userId);
 
@@ -47,34 +44,36 @@ public class ItemService {
             request = Optional.empty();
         }
 
-        Item item = new Item(null, itemDto.getName(), itemDto.getDescription(),
-                itemDto.getAvailable(), owner, request);
+        Item item = ItemMapper.toItem(itemDto);
+        item.setOwner(owner);
+        item.setRequest(request);
 
-        return ItemMapper.toItemEntityDto(itemStorage.create(item));
+        return ItemMapper.toItemDto(itemStorage.create(item));
 
     }
 
-    public ItemEntityDto update(int ownerId, int itemId, ItemUpdateDto itemDto) {
+    public ItemDto update(int ownerId, int itemId, ItemDto itemDto) {
 
-        Item item0 = checkAndGetItem(itemId);
+        Item itemDB = checkAndGetItem(itemId);
+        Item itemNew = ItemMapper.toItem(itemDto);
 
-        if (item0.getOwner().getId() != ownerId) {
+        if (itemDB.getOwner().getId() != ownerId) {
             throw new ItemAccessDeniedException("Доступ к чужим вещам запрещен");
         }
 
-        if (itemDto.getName() != null) {
-            item0.setName(itemDto.getName());
+        if (itemNew.getName() != null) {
+            itemDB.setName(itemDto.getName());
         }
 
-        if (itemDto.getDescription() != null) {
-            item0.setDescription(itemDto.getDescription());
+        if (itemNew.getDescription() != null) {
+            itemDB.setDescription(itemDto.getDescription());
         }
 
-        if (itemDto.getAvailable() != null) {
-            item0.setAvailable(itemDto.getAvailable());
+        if (itemNew.getAvailable() != null) {
+            itemDB.setAvailable(itemNew.getAvailable());
         }
 
-        return ItemMapper.toItemEntityDto(itemStorage.update(item0));
+        return ItemMapper.toItemDto(itemStorage.update(itemDB));
 
     }
 
@@ -83,23 +82,23 @@ public class ItemService {
         itemStorage.delete(id);
     }
 
-    public ItemEntityDto getItemById(int id) {
+    public ItemDto getItemById(int id) {
         Item item = checkAndGetItem(id);
-        return ItemMapper.toItemEntityDto(item);
+        return ItemMapper.toItemDto(item);
     }
 
-    public List<ItemEntityDto> getItems(int ownerId) {
+    public List<ItemDto> getItems(int ownerId) {
         userService.checkAndGetUser(ownerId);
         return itemStorage.getItems(ownerId).stream()
-                .map(ItemMapper::toItemEntityDto)
+                .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
 
-    public List<ItemEntityDto> findByText(String text) {
+    public List<ItemDto> findByText(String text) {
         if (!text.trim().isEmpty()) {
             return itemStorage.findByText(text).stream()
                     .filter(Item::getAvailable)
-                    .map(ItemMapper::toItemEntityDto)
+                    .map(ItemMapper::toItemDto)
                     .collect(Collectors.toList());
         } else {
             return new ArrayList<>();

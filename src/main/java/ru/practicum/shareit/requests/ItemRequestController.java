@@ -1,15 +1,15 @@
 package ru.practicum.shareit.requests;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.requests.dto.ItemRequestCreationDto;
-import ru.practicum.shareit.requests.dto.ItemRequestEntityDto;
-import ru.practicum.shareit.requests.dto.ItemRequestUpdateDto;
-
+import ru.practicum.shareit.common.controller.RestAction;
+import ru.practicum.shareit.requests.dto.ItemRequestDto;
 import javax.validation.Valid;
 import java.util.List;
 
 @RestController
+@Validated
 @RequestMapping(path = "/requests")
 public class ItemRequestController {
 
@@ -21,15 +21,17 @@ public class ItemRequestController {
     }
 
     @PostMapping
-    public ItemRequestEntityDto create(@RequestHeader("X-Sharer-User-Id") int userId,
-                                       @Valid @RequestBody ItemRequestCreationDto requestDto) {
+    @Validated({RestAction.Create.class})
+    public ItemRequestDto create(@RequestHeader("X-Sharer-User-Id") int userId,
+                                 @Valid @RequestBody ItemRequestDto requestDto) {
         return itemRequestService.create(userId, requestDto);
     }
 
     @PatchMapping(value = "/{id}")
-    public ItemRequestEntityDto update(@RequestHeader("X-Sharer-User-Id") int userId,
-                                @PathVariable int id,
-                                @Valid @RequestBody ItemRequestUpdateDto requestDto) {
+    @Validated({RestAction.Update.class})
+    public ItemRequestDto update(@RequestHeader("X-Sharer-User-Id") int userId,
+                                 @PathVariable int id,
+                                 @Valid @RequestBody ItemRequestDto requestDto) {
         return itemRequestService.update(userId, id, requestDto);
     }
 
@@ -39,12 +41,12 @@ public class ItemRequestController {
     }
 
     @GetMapping
-    public List<ItemRequestEntityDto> getItemRequestsAll() {
+    public List<ItemRequestDto> getItemRequestsAll() {
         return itemRequestService.getItemRequestsAll();
     }
 
     @GetMapping(value = "/{id}")
-    public ItemRequestEntityDto getItem(@PathVariable int id) {
+    public ItemRequestDto getItem(@PathVariable int id) {
         return itemRequestService.getItemRequestById(id);
     }
 

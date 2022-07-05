@@ -4,9 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.common.error_handling.exception.ItemAccessDeniedException;
 import ru.practicum.shareit.common.error_handling.exception.RequestNotFoundException;
-import ru.practicum.shareit.requests.dto.ItemRequestCreationDto;
-import ru.practicum.shareit.requests.dto.ItemRequestEntityDto;
-import ru.practicum.shareit.requests.dto.ItemRequestUpdateDto;
+import ru.practicum.shareit.requests.dto.ItemRequestDto;
 import ru.practicum.shareit.requests.storage.ItemRequestStorage;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
@@ -28,32 +26,34 @@ public class ItemRequestService {
         this.userService = userService;
     }
 
-    public ItemRequestEntityDto create(int requesterId, ItemRequestCreationDto requestDto) {
+    public ItemRequestDto create(int requesterId, ItemRequestDto requestDto) {
 
         User requester = userService.checkAndGetUser(requesterId);
 
-        ItemRequest request = new ItemRequest(null, requestDto.getDescription(), requester,
-                LocalDateTime.now());
+        ItemRequest request = ItemRequestMapper.toItemRequest(requestDto);
+        request.setRequester(requester);
+        request.setCreated(LocalDateTime.now());
 
         request = itemRequestStorage.create(request);
         return ItemRequestMapper.toItemRequestEntityDto(request);
 
     }
 
-    public ItemRequestEntityDto update(int requesterId, int requestId,
-                                       ItemRequestUpdateDto requestDto) {
+    public ItemRequestDto update(int requesterId, int requestId,
+                                 ItemRequestDto requestDto) {
 
         userService.checkAndGetUser(requesterId);
-        ItemRequest request = checkAndGetRequest(requestId);
+        ItemRequest requestDB = checkAndGetRequest(requestId);
+        ItemRequest requestNew = ItemRequestMapper.toItemRequest(requestDto);
 
-        if (request.getRequester().getId() != requesterId) {
+        if (requestDB.getRequester().getId() != requesterId) {
             throw new ItemAccessDeniedException("Нельзя изменять чужие запросы");
         }
 
-        request.setDescription(requestDto.getDescription());
+        requestDB.setDescription(requestNew.getDescription());
 
-        request = itemRequestStorage.update(request);
-        return ItemRequestMapper.toItemRequestEntityDto(request);
+        requestDB = itemRequestStorage.update(requestDB);
+        return ItemRequestMapper.toItemRequestEntityDto(requestDB);
 
     }
 
@@ -62,12 +62,12 @@ public class ItemRequestService {
         itemRequestStorage.delete(id);
     }
 
-    public ItemRequestEntityDto getItemRequestById(int id) {
+    public ItemRequestDto getItemRequestById(int id) {
         ItemRequest request = checkAndGetRequest(id);
         return ItemRequestMapper.toItemRequestEntityDto(request);
     }
 
-    public List<ItemRequestEntityDto> getItemRequestsAll() {
+    public List<ItemRequestDto> getItemRequestsAll() {
         return itemRequestStorage.getItemRequestAll().stream()
                 .map(ItemRequestMapper::toItemRequestEntityDto)
                 .collect(Collectors.toList());
