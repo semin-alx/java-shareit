@@ -1,7 +1,18 @@
 package ru.practicum.shareit.item.model;
 
-/**
- * // TODO .
- */
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import ru.practicum.shareit.requests.ItemRequest;
+import ru.practicum.shareit.user.User;
+import java.util.Optional;
+
+@Data
+@AllArgsConstructor
 public class Item {
+    private Integer id;
+    private String name;
+    private String description;
+    private Boolean available;
+    private User owner;
+    private Optional<ItemRequest> request;
 }
