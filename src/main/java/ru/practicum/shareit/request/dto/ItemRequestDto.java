@@ -1,4 +1,4 @@
-package ru.practicum.shareit.requests.dto;
+package ru.practicum.shareit.request.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,12 +14,12 @@ public class ItemRequestDto {
     @Data
     @AllArgsConstructor
     public static class User {
-        private int id;
+        private Long id;
         private String name;
     }
 
     @Null(groups = {RestAction.Create.class, RestAction.Update.class})
-    private Integer id;
+    private Long id;
 
     @NotBlank
     private String description;

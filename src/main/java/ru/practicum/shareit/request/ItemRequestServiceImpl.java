@@ -1,32 +1,29 @@
-package ru.practicum.shareit.requests;
+package ru.practicum.shareit.request;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.common.error_handling.exception.ItemAccessDeniedException;
 import ru.practicum.shareit.common.error_handling.exception.RequestNotFoundException;
-import ru.practicum.shareit.requests.dto.ItemRequestDto;
-import ru.practicum.shareit.requests.storage.ItemRequestStorage;
+import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
-
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
-public class ItemRequestService {
+public class ItemRequestServiceImpl implements ItemRequestService {
 
-    private final ItemRequestStorage itemRequestStorage;
     private final UserService userService;
+    private final RequestRepository requestRepository;
 
     @Autowired
-    public ItemRequestService(ItemRequestStorage itemRequestStorage, UserService userService) {
-        this.itemRequestStorage = itemRequestStorage;
+    public ItemRequestServiceImpl(UserService userService, RequestRepository requestRepository) {
+        this.requestRepository = requestRepository;
         this.userService = userService;
     }
 
-    public ItemRequestDto create(int requesterId, ItemRequestDto requestDto) {
+    @Override
+    public ItemRequestDto create(long requesterId, ItemRequestDto requestDto) {
 
         User requester = userService.checkAndGetUser(requesterId);
 
@@ -34,12 +31,13 @@ public class ItemRequestService {
         request.setRequester(requester);
         request.setCreated(LocalDateTime.now());
 
-        request = itemRequestStorage.create(request);
+        request = requestRepository.save(request);
         return ItemRequestMapper.toItemRequestEntityDto(request);
 
     }
 
-    public ItemRequestDto update(int requesterId, int requestId,
+    @Override
+    public ItemRequestDto update(long requesterId, long requestId,
                                  ItemRequestDto requestDto) {
 
         userService.checkAndGetUser(requesterId);
@@ -52,29 +50,26 @@ public class ItemRequestService {
 
         requestDB.setDescription(requestNew.getDescription());
 
-        requestDB = itemRequestStorage.update(requestDB);
+        requestDB = requestRepository.save(requestDB);
         return ItemRequestMapper.toItemRequestEntityDto(requestDB);
 
     }
 
-    public void delete(int id) {
-        checkAndGetRequest(id);
-        itemRequestStorage.delete(id);
+    @Override
+    public void delete(long id) {
+        ItemRequest request = checkAndGetRequest(id);
+        requestRepository.delete(request);
     }
 
+    @Override
     public ItemRequestDto getItemRequestById(int id) {
         ItemRequest request = checkAndGetRequest(id);
         return ItemRequestMapper.toItemRequestEntityDto(request);
     }
 
-    public List<ItemRequestDto> getItemRequestsAll() {
-        return itemRequestStorage.getItemRequestAll().stream()
-                .map(ItemRequestMapper::toItemRequestEntityDto)
-                .collect(Collectors.toList());
-    }
-
-    public ItemRequest checkAndGetRequest(int id) {
-        Optional<ItemRequest> request = itemRequestStorage.getById(id);
+    @Override
+    public ItemRequest checkAndGetRequest(long id) {
+        Optional<ItemRequest> request = requestRepository.findById(id);
         if (!request.isPresent()) {
             throw new RequestNotFoundException("Запрос по идентификатору не найден");
         } else {

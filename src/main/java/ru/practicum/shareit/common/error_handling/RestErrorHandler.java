@@ -6,10 +6,7 @@ import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.shareit.common.error_handling.exception.ItemAccessDeniedException;
-import ru.practicum.shareit.common.error_handling.exception.ItemNotFoundException;
-import ru.practicum.shareit.common.error_handling.exception.UserAlreadyExistsException;
-import ru.practicum.shareit.common.error_handling.exception.UserNotFoundException;
+import ru.practicum.shareit.common.error_handling.exception.*;
 
 import javax.validation.ConstraintViolationException;
 
@@ -24,7 +21,7 @@ public class RestErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse userAlreadyExistsHandler(final UserAlreadyExistsException e) {
+    public ErrorResponse userSaveHandler(final UserSaveException e) {
         return new ErrorResponse(e.getMessage());
     }
 
@@ -62,5 +59,19 @@ public class RestErrorHandler {
     public ErrorResponse itemAccessDeniedHandler(final ItemAccessDeniedException e) {
         return new ErrorResponse(e.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse itemNotAvailableException(final ItemNotAvailableException e) {
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse invalidRequestHeaderException(final InvalidRequestHeaderException e) {
+        return new ErrorResponse(e.getMessage());
+    }
+
+
 
 }

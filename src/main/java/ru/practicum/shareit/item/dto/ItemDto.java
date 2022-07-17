@@ -15,12 +15,12 @@ public class ItemDto {
     @Data
     @AllArgsConstructor
     public static class User {
-        private int id;
+        private Long id;
         private String name;
     }
 
     @Null(groups = RestAction.Create.class)
-    private Integer id;
+    private Long id;
 
     @NotBlank(groups = RestAction.Create.class)
     @NullOrNotEmptyConstraint(groups = RestAction.Update.class)
@@ -36,6 +36,6 @@ public class ItemDto {
     @Null(groups = RestAction.Create.class)
     private ItemDto.User owner;
 
-    private Integer requestId;
+    private Long requestId;
 
 }

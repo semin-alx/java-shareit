@@ -14,7 +14,7 @@ import javax.validation.constraints.Null;
 public class UserDto {
 
     @Null(groups = {RestAction.Create.class, RestAction.Update.class})
-    private Integer id;
+    private Long id;
 
     @NotBlank(groups = RestAction.Create.class)
     @NullOrNotEmptyConstraint(groups = RestAction.Update.class)
