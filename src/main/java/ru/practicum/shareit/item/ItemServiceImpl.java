@@ -88,17 +88,34 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto getItemById(long id) {
-        Item item = checkAndGetItem(id);
-        return ItemMapper.toItemDto(item);
+    public ItemDto getItemById(long userId, long itemId) {
+
+        Item item = checkAndGetItem(itemId);
+
+        ItemDto itemDto = ItemMapper.toItemDto(item);
+
+        if (item.getOwner().getId() == userId) {
+            loadBookingInfo(itemDto);
+        }
+
+        loadComments(itemDto);
+
+        return itemDto;
     }
 
     @Override
     public List<ItemDto> getItems(long ownerId) {
+
         userService.checkAndGetUser(ownerId);
-        return itemRepository.findByOwnerId(ownerId).stream()
+
+        List<ItemDto> dtoList = itemRepository.findByOwnerId(ownerId).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
+
+        dtoList.stream().forEach(itemDto -> loadBookingInfo(itemDto));
+
+        return dtoList;
+
     }
 
     @Override
@@ -156,6 +173,34 @@ public class ItemServiceImpl implements ItemService {
         } else {
             return item.get();
         }
+    }
+
+    private void loadBookingInfo(ItemDto itemDto) {
+
+        Optional<Booking> lastBooking = bookingRepository.getLastBooking(itemDto.getId(), LocalDateTime.now());
+
+        if (lastBooking.isPresent()) {
+            itemDto.setLastBooking(new ItemDto.Booking(lastBooking.get().getId(),
+                    lastBooking.get().getBooker().getId()));
+        }
+
+        Optional<Booking> futureBooking = bookingRepository.getFutureBooking(itemDto.getId(), LocalDateTime.now());
+
+        if (futureBooking.isPresent()) {
+            itemDto.setNextBooking(new ItemDto.Booking(futureBooking.get().getId(),
+                    futureBooking.get().getBooker().getId()));
+        }
+
+    }
+
+    private void loadComments(ItemDto itemDto) {
+
+        List<ItemDto.Comment> comments = commentRepository.findByItemId(itemDto.getId()).stream()
+                        .map(c -> new ItemDto.Comment(c.getId(), c.getText(), c.getAuthor().getName(), c.getCreated()))
+                        .collect(Collectors.toList());
+
+        itemDto.setComments(comments);
+
     }
 
 }

@@ -7,6 +7,8 @@ import ru.practicum.shareit.common.validator.NullOrNotEmptyConstraint;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -17,6 +19,22 @@ public class ItemDto {
     public static class User {
         private Long id;
         private String name;
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class Booking {
+        private Long id;
+        private Long bookerId;
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class Comment {
+        private Long id;
+        private String text;
+        private String authorName;
+        private LocalDateTime created;
     }
 
     @Null(groups = RestAction.Create.class)
@@ -37,5 +55,11 @@ public class ItemDto {
     private ItemDto.User owner;
 
     private Long requestId;
+
+    private ItemDto.Booking lastBooking;
+
+    private ItemDto.Booking nextBooking;
+
+    private List<ItemDto.Comment> comments;
 
 }

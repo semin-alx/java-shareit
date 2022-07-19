@@ -58,11 +58,11 @@ public class BookingController {
     // /{bookingId}?approved={approved}
     @PatchMapping(value = "/{id}")
     @Validated({RestAction.Update.class})
-    public BookingDto changeStatus(@RequestHeader("X-Sharer-User-Id") long ownerId,
+    public BookingDto changeStatus(@RequestHeader("X-Sharer-User-Id") long userId,
                              @PathVariable long id,
                              @RequestParam(required = true) Boolean approved) {
 
-        return bookingService.changeStatus(ownerId, id, approved);
+        return bookingService.changeStatus(userId, id, approved);
 
     }
 

@@ -48,8 +48,8 @@ public class ItemController {
     }
 
     @GetMapping(value = "/{id}")
-    public ItemDto getItem(@PathVariable long id) {
-        return itemService.getItemById(id);
+    public ItemDto getItem(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable long id) {
+        return itemService.getItemById(userId, id);
     }
 
     @GetMapping(value = "/search")
@@ -58,6 +58,7 @@ public class ItemController {
     }
 
     @PostMapping(value = "/{itemId}/comment")
+    @Validated({RestAction.Create.class})
     public CommentDto create(@RequestHeader("X-Sharer-User-Id") long authorId,
                              @PathVariable long itemId,
                              @Valid @RequestBody CommentDto commentDto) {

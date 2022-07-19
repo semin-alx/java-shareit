@@ -44,6 +44,11 @@ public class BookingServiceImpl implements BookingService {
             throw new InvalidRequestHeaderException(e.getMessage());
         }
 
+        // ТЕСТ: Booking create from user1 to item1 failed
+        if (userId == item.getOwner().getId()) {
+            throw new ItemAccessDeniedException("Для владельца аренда недоступна");
+        }
+
         checkAvailableForRent(bookingDto.getStart(), bookingDto.getEnd(),
                 item, 0);
 
@@ -115,12 +120,34 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingDto changeStatus(long ownerId, long bookingId, boolean approved) {
+    public BookingDto changeStatus(long userId, long bookingId, boolean approved) {
 
         Booking booking = checkAndGetBooking(bookingId);
 
-        if (booking.getItem().getOwner().getId() != ownerId) {
+        boolean isOwnerChangeStatus = booking.getItem().getOwner().getId() == userId;
+
+        if ((isOwnerChangeStatus && (booking.getItem().getOwner().getId() != userId))
+            || (!isOwnerChangeStatus && (booking.getBooker().getId() != userId))) {
+
             throw new ItemAccessDeniedException("Доступ к чужим заказам запрещен");
+
+        }
+
+        // Заказчик не может подтверждать свой заказ
+        if (!isOwnerChangeStatus && approved) {
+            throw new WrongBookingStatusException("Неверный статус заказа");
+        }
+
+        if (booking.getIsCanceled()) {
+            // Уже конечный статус (CANCEL или REJECT) изменить ничего нельзя
+            throw new WrongBookingStatusException("Неверный статус заказа");
+        }
+
+        if (booking.getIsApproved() && approved && !booking.getIsCanceled()) {
+            // Попытка установить APPROVED, когда он уже установлен
+            // Если на предыдущие ошибки в тестах ожидался код 404
+            // То на эту ошибку в тестах ждут код 400
+            throw new BookingStatusAlreadySetException("Неверный статус заказа");
         }
 
         if (approved) {
@@ -128,9 +155,16 @@ public class BookingServiceImpl implements BookingService {
             booking.setIsApproved(true);
             booking.setIsCanceled(false);
         } else {
-            // REJECTED
-            booking.setIsApproved(false);
-            booking.setIsCanceled(true);
+            if (isOwnerChangeStatus) {
+                // REJECTED
+                booking.setIsApproved(true);
+                booking.setIsCanceled(true);
+            } else {
+                // CANCEL
+                booking.setIsApproved(false);
+                booking.setIsCanceled(true);
+            }
+
         }
 
         return BookingMapper.toBookingEntityDto(bookingRepository.save(booking));
@@ -198,7 +232,8 @@ public class BookingServiceImpl implements BookingService {
                 return false;
             }
 
-            if (!b.getIsApproved() || b.getIsCanceled()) {
+            // CANCELED REJECTED
+            if (b.getIsCanceled()) {
                 return false;
             }
 

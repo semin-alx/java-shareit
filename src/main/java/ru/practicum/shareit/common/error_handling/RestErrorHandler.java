@@ -72,6 +72,22 @@ public class RestErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse wrongBookingStatusException(final WrongBookingStatusException e) {
+        return new ErrorResponse(e.getMessage());
+    }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse itemBusyException(final ItemBusyException e) {
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse bookingStatusAlreadySetException(final BookingStatusAlreadySetException e) {
+        return new ErrorResponse(e.getMessage());
+    }
 
 }

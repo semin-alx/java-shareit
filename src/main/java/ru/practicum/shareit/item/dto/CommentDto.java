@@ -13,13 +13,6 @@ public class CommentDto {
 
     @Data
     @AllArgsConstructor
-    public static class User {
-        private Long id;
-        private String name;
-    }
-
-    @Data
-    @AllArgsConstructor
     public static class Item {
         private Long id;
         private String name;
@@ -34,7 +27,7 @@ public class CommentDto {
     @Null(groups = {RestAction.Create.class, RestAction.Update.class})
     private LocalDateTime created;
 
-    private CommentDto.User author;
+    private String authorName;
 
     private CommentDto.Item item;
 
