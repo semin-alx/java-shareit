@@ -90,4 +90,11 @@ public class RestErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse wrongRentPeriodException(final WrongRentPeriodException e) {
+        return new ErrorResponse(e.getMessage());
+    }
+
+
 }
