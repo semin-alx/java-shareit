@@ -96,5 +96,18 @@ public class RestErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse invalidRequestParamException(final InvalidRequestParamException e) {
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse requestNotFoundException(final RequestNotFoundException e) {
+        return new ErrorResponse(e.getMessage());
+    }
+
+
 
 }

@@ -62,4 +62,8 @@ public class ItemDto {
 
     private List<ItemDto.Comment> comments;
 
+    public ItemDto() {
+
+    }
+
 }

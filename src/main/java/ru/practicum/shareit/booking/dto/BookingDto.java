@@ -50,4 +50,8 @@ public class BookingDto {
     @Null(groups = {RestAction.Create.class, RestAction.Update.class})
     private BookingStatus status;
 
+    public BookingDto() {
+
+    }
+
 }
