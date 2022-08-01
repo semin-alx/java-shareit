@@ -21,4 +21,7 @@ public interface RequestRepository extends JpaRepository<ItemRequest, Long> {
     // Получить свой request по id, чужие недоступны
     Optional<ItemRequest> findByRequesterIdAndId(long requestrId, long id);
 
+    // Получить запрос по id
+    Optional<ItemRequest> findById(long id);
+
 }

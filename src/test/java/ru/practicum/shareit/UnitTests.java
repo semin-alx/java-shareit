@@ -1,6 +1,5 @@
 package ru.practicum.shareit;
 
-import net.bytebuddy.implementation.FieldAccessor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,9 +23,7 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.UserServiceImpl;
-
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @SpringBootTest
@@ -152,7 +149,7 @@ public class UnitTests {
 
         Mockito
                 .when(mockUserService.checkAndGetUser(Mockito.anyLong()))
-                .thenReturn (new User());
+                .thenReturn(new User());
 
         Mockito
                 .when(mockItemRepository.findById(Mockito.anyLong()))
@@ -324,8 +321,7 @@ public class UnitTests {
                 mockRequestRepository);
 
         Mockito
-                .when(mockRequestRepository.findByRequesterIdAndId(Mockito.anyLong(),
-                                                                   Mockito.anyLong()))
+                .when(mockRequestRepository.findById(Mockito.anyLong()))
                 .thenReturn(Optional.empty());
 
         final RequestNotFoundException exception = Assertions.assertThrows(

@@ -175,6 +175,8 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> getBookingByBooker(long bookerId, BookingFilterState state) {
 
+        userService.checkAndGetUser(bookerId);
+
         switch (state) {
             case ALL:
                 return bookingRepository.findByBookerId(bookerId).stream()
@@ -217,6 +219,7 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingDto> getBookingByBooker(long bookerId, BookingFilterState state,
                                                int from, int page) {
 
+        userService.checkAndGetUser(bookerId);
         Pageable pageable = PageRequest.of(from, page);
 
         switch (state) {
@@ -305,6 +308,8 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> getBookingByOwner(long ownerId, BookingFilterState state) {
 
+        userService.checkAndGetUser(ownerId);
+
         switch (state) {
             case ALL:
                 return bookingRepository.findByOwnerId(ownerId).stream()
@@ -348,6 +353,7 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingDto> getBookingByOwner(long ownerId, BookingFilterState state,
                                               int from, int page) {
 
+        userService.checkAndGetUser(ownerId);
         Pageable pageable = PageRequest.of(from, page);
 
         switch (state) {

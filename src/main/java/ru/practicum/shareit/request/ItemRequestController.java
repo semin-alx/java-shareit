@@ -52,16 +52,16 @@ public class ItemRequestController {
        return itemRequestService.getItemsAll(userId);
     }
 
-    // /requests/all?from=0&page=0
+    // /requests/all?from=0&size=0
     @GetMapping(value = "/all")
     public List<ItemRequestDto> getItemsAll(@RequestHeader("X-Sharer-User-Id") Long userId,
                                             @RequestParam(required = false) Integer from,
-                                            @RequestParam(required = false) Integer page) {
+                                            @RequestParam(required = false) Integer size) {
 
-        if ((from == null) && (page == null)) {
+        if ((from == null) && (size == null)) {
             return itemRequestService.getItemsAllExceptUserId(userId);
-        } else if ((from != null) && (page != null) && (from >= 0) && (page > 0)) {
-            return itemRequestService.getItemsAllExceptUserId(userId, from, page);
+        } else if ((from != null) && (size != null) && (from >= 0) && (size > 0)) {
+            return itemRequestService.getItemsAllExceptUserId(userId, from, size);
         } else {
             throw new InvalidRequestParamException("Неверные параметры from или page");
         }

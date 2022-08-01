@@ -12,7 +12,6 @@ import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -77,9 +76,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public List<ItemRequestDto> getItemsAll(long userId) {
 
-        // А здесь проверять наличие пользователя не нужно
-        // в тестах на неверный userId нужно выдать код 200
-        //getUserById(userId);
+        getUserById(userId);
 
         return requestRepository.findByRequesterId(userId).stream()
                 .map(ItemRequestMapper::toItemRequestEntityDto)
@@ -114,7 +111,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public ItemRequest checkAndGetRequestByOwner(long ownerId, long id) {
-        Optional<ItemRequest> request = requestRepository.findByRequesterIdAndId(ownerId, id);
+        userService.checkAndGetUser(ownerId);
+        Optional<ItemRequest> request = requestRepository.findById(id);
         if (!request.isPresent()) {
             throw new RequestNotFoundException("Запрос по идентификатору не найден");
         } else {

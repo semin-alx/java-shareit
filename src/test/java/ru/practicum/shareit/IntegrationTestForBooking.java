@@ -10,14 +10,11 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.common.PersistenceConfig;
-import ru.practicum.shareit.item.Item;
+import ru.practicum.shareit.config.PersistenceConfig;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.ItemServiceImpl;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.request.ItemRequestService;
 import ru.practicum.shareit.request.ItemRequestServiceImpl;
-import ru.practicum.shareit.request.RequestRepository;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.UserServiceImpl;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -27,7 +24,7 @@ import java.util.List;
 
 @Transactional
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@SpringJUnitConfig( {PersistenceConfig.class, BookingServiceImpl.class, ItemServiceImpl.class,
+@SpringJUnitConfig({PersistenceConfig.class, BookingServiceImpl.class, ItemServiceImpl.class,
         UserServiceImpl.class, BookingRepository.class, ItemRequestServiceImpl.class})
 @DataJpaTest
 public class IntegrationTestForBooking {
