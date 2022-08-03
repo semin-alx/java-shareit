@@ -1,14 +1,20 @@
 package ru.practicum.shareit.request;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.common.error_handling.exception.InvalidRequestHeaderException;
 import ru.practicum.shareit.common.error_handling.exception.ItemAccessDeniedException;
 import ru.practicum.shareit.common.error_handling.exception.RequestNotFoundException;
+import ru.practicum.shareit.common.error_handling.exception.UserNotFoundException;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ItemRequestServiceImpl implements ItemRequestService {
@@ -25,7 +31,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public ItemRequestDto create(long requesterId, ItemRequestDto requestDto) {
 
-        User requester = userService.checkAndGetUser(requesterId);
+        User requester = getUserById(requesterId);
 
         ItemRequest request = ItemRequestMapper.toItemRequest(requestDto);
         request.setRequester(requester);
@@ -62,9 +68,35 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public ItemRequestDto getItemRequestById(int id) {
-        ItemRequest request = checkAndGetRequest(id);
+    public ItemRequestDto getItemRequestByOwnerId(long ownerId, long id) {
+        ItemRequest request = checkAndGetRequestByOwner(ownerId, id);
         return ItemRequestMapper.toItemRequestEntityDto(request);
+    }
+
+    @Override
+    public List<ItemRequestDto> getItemsAll(long userId) {
+
+        getUserById(userId);
+
+        return requestRepository.findByRequesterId(userId).stream()
+                .map(ItemRequestMapper::toItemRequestEntityDto)
+                .collect(Collectors.toList());
+
+    }
+
+    @Override
+    public List<ItemRequestDto> getItemsAllExceptUserId(long userId) {
+        return requestRepository.findAllByRequesterIdNot(userId).stream()
+                .map(ItemRequestMapper::toItemRequestEntityDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ItemRequestDto> getItemsAllExceptUserId(long userId, int from, int page) {
+        Pageable p = PageRequest.of(from, page);
+        return requestRepository.findAllByRequesterIdNot(userId, p).stream()
+                .map(ItemRequestMapper::toItemRequestEntityDto)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -75,6 +107,30 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         } else {
             return request.get();
         }
+    }
+
+    @Override
+    public ItemRequest checkAndGetRequestByOwner(long ownerId, long id) {
+        userService.checkAndGetUser(ownerId);
+        Optional<ItemRequest> request = requestRepository.findById(id);
+        if (!request.isPresent()) {
+            throw new RequestNotFoundException("Запрос по идентификатору не найден");
+        } else {
+            return request.get();
+        }
+    }
+
+    private User getUserById(long userId) {
+
+        // В тестах ожидается HTTP код то 404,то 500
+        // UserNotFoundException вернет 404
+        // InvalidRequestHeaderException вернет 500
+        try {
+            return userService.checkAndGetUser(userId);
+        } catch (UserNotFoundException e) {
+            throw new InvalidRequestHeaderException(e.getMessage());
+        }
+
     }
 
 }

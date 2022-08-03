@@ -1,5 +1,7 @@
 package ru.practicum.shareit.item;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
@@ -28,7 +30,9 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
 
-    public ItemServiceImpl(ItemRepository itemRepository, UserService userService, ItemRequestService requestService, BookingRepository bookingRepository, CommentRepository commentRepository) {
+    public ItemServiceImpl(ItemRepository itemRepository, UserService userService,
+                           ItemRequestService requestService, BookingRepository bookingRepository,
+                           CommentRepository commentRepository) {
         this.itemRepository = itemRepository;
         this.userService = userService;
         this.requestService = requestService;
@@ -108,7 +112,24 @@ public class ItemServiceImpl implements ItemService {
 
         userService.checkAndGetUser(ownerId);
 
-        List<ItemDto> dtoList = itemRepository.findByOwnerId(ownerId).stream()
+        List<ItemDto> dtoList = itemRepository.findByOwnerIdOrderById(ownerId).stream()
+                .map(ItemMapper::toItemDto)
+                .collect(Collectors.toList());
+
+        dtoList.stream().forEach(itemDto -> loadBookingInfo(itemDto));
+
+        return dtoList;
+
+    }
+
+    @Override
+    public List<ItemDto> getItems(long ownerId, int from, int page) {
+
+        userService.checkAndGetUser(ownerId);
+
+        Pageable p = PageRequest.of(from, page);
+
+        List<ItemDto> dtoList = itemRepository.findByOwnerIdOrderById(ownerId, p).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
 
@@ -122,6 +143,18 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> findByText(String text) {
         if (!text.trim().isEmpty()) {
             return itemRepository.findAvailableByText(text).stream()
+                    .map(ItemMapper::toItemDto)
+                    .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public List<ItemDto> findByText(String text, int from, int page) {
+        if (!text.trim().isEmpty()) {
+            Pageable p = PageRequest.of(from, page);
+            return itemRepository.findAvailableByText(text, p).stream()
                     .map(ItemMapper::toItemDto)
                     .collect(Collectors.toList());
         } else {

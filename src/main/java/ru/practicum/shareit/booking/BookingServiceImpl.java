@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.common.error_handling.exception.*;
@@ -22,7 +24,8 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
 
     @Autowired
-    public BookingServiceImpl(ItemService itemService, UserService userService, BookingRepository bookingRepository) {
+    public BookingServiceImpl(ItemService itemService, UserService userService,
+                              BookingRepository bookingRepository) {
         this.itemService = itemService;
         this.userService = userService;
         this.bookingRepository = bookingRepository;
@@ -124,18 +127,16 @@ public class BookingServiceImpl implements BookingService {
 
         Booking booking = checkAndGetBooking(bookingId);
 
+        // Запрос выполняет хозяин вещи
         boolean isOwnerChangeStatus = booking.getItem().getOwner().getId() == userId;
 
-        if ((isOwnerChangeStatus && (booking.getItem().getOwner().getId() != userId))
-            || (!isOwnerChangeStatus && (booking.getBooker().getId() != userId))) {
-
+        if (!isOwnerChangeStatus && (booking.getBooker().getId() != userId)) {
             throw new ItemAccessDeniedException("Доступ к чужим заказам запрещен");
-
         }
 
         // Заказчик не может подтверждать свой заказ
         if (!isOwnerChangeStatus && approved) {
-            throw new WrongBookingStatusException("Неверный статус заказа");
+            throw new WrongBookingStatusException("Заказчик не может подтверждать свой заказ");
         }
 
         if (booking.getIsCanceled()) {
@@ -174,6 +175,8 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> getBookingByBooker(long bookerId, BookingFilterState state) {
 
+        userService.checkAndGetUser(bookerId);
+
         switch (state) {
             case ALL:
                 return bookingRepository.findByBookerId(bookerId).stream()
@@ -203,6 +206,51 @@ public class BookingServiceImpl implements BookingService {
             case REJECTED:
                 return bookingRepository.findByStatusByBooker(bookerId,
                                 true, true)
+                        .stream()
+                        .map(BookingMapper::toBookingEntityDto)
+                        .collect(Collectors.toList());
+            default:
+                return List.of(); // На всякий случай
+        }
+
+    }
+
+    @Override
+    public List<BookingDto> getBookingByBooker(long bookerId, BookingFilterState state,
+                                               int from, int page) {
+
+        userService.checkAndGetUser(bookerId);
+        Pageable pageable = PageRequest.of(from, page);
+
+        switch (state) {
+            case ALL:
+                return bookingRepository.findByBookerId(bookerId, pageable).stream()
+                        .map(BookingMapper::toBookingEntityDto)
+                        .collect(Collectors.toList());
+            case CURRENT:
+                return bookingRepository.findCurrentByBooker(bookerId,
+                                LocalDateTime.now(), pageable).stream()
+                        .map(BookingMapper::toBookingEntityDto)
+                        .collect(Collectors.toList());
+            case PAST:
+                return bookingRepository.findPastByBooker(bookerId, LocalDateTime.now(), pageable)
+                        .stream()
+                        .map(BookingMapper::toBookingEntityDto)
+                        .collect(Collectors.toList());
+            case FUTURE:
+                return bookingRepository.findFutureByBooker(bookerId, LocalDateTime.now(), pageable)
+                        .stream()
+                        .map(BookingMapper::toBookingEntityDto)
+                        .collect(Collectors.toList());
+            case WAITING:
+                return bookingRepository.findByStatusByBooker(bookerId,
+                                false, false, pageable)
+                        .stream()
+                        .map(BookingMapper::toBookingEntityDto)
+                        .collect(Collectors.toList());
+            case REJECTED:
+                return bookingRepository.findByStatusByBooker(bookerId,
+                                true, true, pageable)
                         .stream()
                         .map(BookingMapper::toBookingEntityDto)
                         .collect(Collectors.toList());
@@ -260,9 +308,16 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> getBookingByOwner(long ownerId, BookingFilterState state) {
 
+        userService.checkAndGetUser(ownerId);
+
         switch (state) {
             case ALL:
                 return bookingRepository.findByOwnerId(ownerId).stream()
+                        .map(BookingMapper::toBookingEntityDto)
+                        .collect(Collectors.toList());
+            case CURRENT:
+                return bookingRepository.findCurrentByOwner(ownerId, LocalDateTime.now())
+                        .stream()
                         .map(BookingMapper::toBookingEntityDto)
                         .collect(Collectors.toList());
             case PAST:
@@ -284,6 +339,52 @@ public class BookingServiceImpl implements BookingService {
             case REJECTED:
                 return bookingRepository.findByStatusByOwner(ownerId,
                                 true, true)
+                        .stream()
+                        .map(BookingMapper::toBookingEntityDto)
+                        .collect(Collectors.toList());
+            default:
+                return List.of(); // На всякий случай
+
+        }
+
+    }
+
+    @Override
+    public List<BookingDto> getBookingByOwner(long ownerId, BookingFilterState state,
+                                              int from, int page) {
+
+        userService.checkAndGetUser(ownerId);
+        Pageable pageable = PageRequest.of(from, page);
+
+        switch (state) {
+            case ALL:
+                return bookingRepository.findByOwnerId(ownerId, pageable).stream()
+                        .map(BookingMapper::toBookingEntityDto)
+                        .collect(Collectors.toList());
+            case CURRENT:
+                return bookingRepository.findCurrentByOwner(ownerId, LocalDateTime.now(), pageable)
+                        .stream()
+                        .map(BookingMapper::toBookingEntityDto)
+                        .collect(Collectors.toList());
+            case PAST:
+                return bookingRepository.findPastByOwner(ownerId, LocalDateTime.now(), pageable)
+                        .stream()
+                        .map(BookingMapper::toBookingEntityDto)
+                        .collect(Collectors.toList());
+            case FUTURE:
+                return bookingRepository.findFutureByOwner(ownerId, LocalDateTime.now(), pageable)
+                        .stream()
+                        .map(BookingMapper::toBookingEntityDto)
+                        .collect(Collectors.toList());
+            case WAITING:
+                return bookingRepository.findByStatusByOwner(ownerId,
+                                false, false, pageable)
+                        .stream()
+                        .map(BookingMapper::toBookingEntityDto)
+                        .collect(Collectors.toList());
+            case REJECTED:
+                return bookingRepository.findByStatusByOwner(ownerId,
+                                true, true, pageable)
                         .stream()
                         .map(BookingMapper::toBookingEntityDto)
                         .collect(Collectors.toList());

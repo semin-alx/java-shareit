@@ -5,6 +5,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.common.controller.RestAction;
+import ru.practicum.shareit.common.error_handling.exception.InvalidRequestHeaderException;
+import ru.practicum.shareit.common.error_handling.exception.InvalidRequestParamException;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -23,7 +25,7 @@ public class BookingController {
 
     @PostMapping
     @Validated({RestAction.Create.class})
-    public BookingDto create(@RequestHeader("X-Sharer-User-Id") int userId,
+    public BookingDto create(@RequestHeader("X-Sharer-User-Id") long userId,
                              @Valid @RequestBody BookingDto bookingDto) {
         return bookingService.create(userId, bookingDto);
     }
@@ -39,20 +41,56 @@ public class BookingController {
         return bookingService.getBookingById(bookerId, id);
     }
 
-    // /bookings?state={state}
+    // /bookings?state={state}&from=0&page=0
     @GetMapping
-    public List<BookingDto> getBookingByBooker(@RequestHeader("X-Sharer-User-Id") long bookerId,
-                                               @RequestParam(required = false, defaultValue = "ALL")
-                                               BookingFilterState state) {
-        return bookingService.getBookingByBooker(bookerId, state);
+    public List<BookingDto> getBookingByBooker(
+            @RequestHeader("X-Sharer-User-Id") long bookerId,
+            @RequestParam(required = false, defaultValue = "ALL") String state,
+            @RequestParam(required = false) Integer from,
+            @RequestParam(required = false) Integer page) {
+
+        BookingFilterState stateA;
+
+        try {
+            stateA = BookingFilterState.parse(state);
+        } catch (IllegalArgumentException e) {
+            throw new InvalidRequestHeaderException("Unknown state: " + state);
+        }
+
+        if ((from == null) && (page == null)) {
+            return bookingService.getBookingByBooker(bookerId, stateA);
+        } else if ((from != null) && (page != null) && (from >= 0) && (page > 0)) {
+            return bookingService.getBookingByBooker(bookerId, stateA, from, page);
+        } else {
+            throw new InvalidRequestParamException("Неверные параметры from или page");
+        }
+
     }
 
-    // /bookings/owner?state={state}
+    // /bookings/owner?state={state}&from=0&page=0
     @GetMapping(value = "/owner")
-    public List<BookingDto> getBookingByOwner(@RequestHeader("X-Sharer-User-Id") long ownerId,
-                                              @RequestParam(required = false, defaultValue = "ALL")
-                                              BookingFilterState state) {
-        return bookingService.getBookingByOwner(ownerId, state);
+    public List<BookingDto> getBookingByOwner(
+            @RequestHeader("X-Sharer-User-Id") long ownerId,
+            @RequestParam(required = false, defaultValue = "ALL") String state,
+            @RequestParam(required = false) Integer from,
+            @RequestParam(required = false) Integer page) {
+
+        BookingFilterState stateA;
+
+        try {
+            stateA = BookingFilterState.parse(state);
+        } catch (IllegalArgumentException e) {
+            throw new InvalidRequestHeaderException("Unknown state: " + state);
+        }
+
+        if ((from == null) && (page == null)) {
+            return bookingService.getBookingByOwner(ownerId, stateA);
+        } else if ((from != null) && (page != null) && (from >= 0) && (page > 0)) {
+            return bookingService.getBookingByOwner(ownerId, stateA, from, page);
+        } else {
+            throw new InvalidRequestParamException("Неверные параметры from или page");
+        }
+
     }
 
     // /{bookingId}?approved={approved}

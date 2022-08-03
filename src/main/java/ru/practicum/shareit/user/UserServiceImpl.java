@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto update(int userId, UserDto userDto) {
+    public UserDto update(long userId, UserDto userDto) {
 
         User userDB = checkAndGetUser(userId);
         User userNew = UserMapper.toUser(userDto);

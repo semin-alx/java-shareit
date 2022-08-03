@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.common.controller.RestAction;
+import ru.practicum.shareit.common.error_handling.exception.InvalidRequestParamException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 
@@ -42,9 +43,20 @@ public class ItemController {
         itemService.delete(id);
     }
 
+    // items?from=0&page=0
     @GetMapping
-    public List<ItemDto> getItems(@RequestHeader("X-Sharer-User-Id") long ownerId) {
-        return itemService.getItems(ownerId);
+    public List<ItemDto> getItems(@RequestHeader("X-Sharer-User-Id") long ownerId,
+                                  @RequestParam(required = false) Integer from,
+                                  @RequestParam(required = false) Integer page) {
+
+        if ((from == null) && (page == null)) {
+            return itemService.getItems(ownerId);
+        } else if ((from != null) && (page != null) && (from >= 0) && (page > 0)) {
+            return itemService.getItems(ownerId, from, page);
+        } else {
+            throw new InvalidRequestParamException("Неверные параметры from или page");
+        }
+
     }
 
     @GetMapping(value = "/{id}")
@@ -52,9 +64,20 @@ public class ItemController {
         return itemService.getItemById(userId, id);
     }
 
+    // items/search?text=aaa&from=0&page=0
     @GetMapping(value = "/search")
-    public List<ItemDto> findByText(@RequestParam String text) {
-        return itemService.findByText(text);
+    public List<ItemDto> findByText(@RequestParam String text,
+                                    @RequestParam(required = false) Integer from,
+                                    @RequestParam(required = false) Integer page) {
+
+        if ((from == null) && (page == null)) {
+            return itemService.findByText(text);
+        } else if ((from != null) && (page != null) && (from >= 0) && (page > 0)) {
+            return itemService.findByText(text, from, page);
+        } else {
+            throw new InvalidRequestParamException("Неверные параметры from или page");
+        }
+
     }
 
     @PostMapping(value = "/{itemId}/comment")

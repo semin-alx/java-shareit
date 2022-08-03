@@ -3,9 +3,11 @@ package ru.practicum.shareit.request;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.user.User;
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -27,6 +29,10 @@ public class ItemRequest {
 
     @Column(name = "created", nullable = false)
     private LocalDateTime created;
+
+    @OneToMany
+    @JoinColumn(name = "request_id")
+    private Set<Item> items;
 
     public ItemRequest() {
 

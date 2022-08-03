@@ -6,6 +6,7 @@ import ru.practicum.shareit.common.controller.RestAction;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Null;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -16,6 +17,16 @@ public class ItemRequestDto {
     public static class User {
         private Long id;
         private String name;
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class Item {
+        private Long id;
+        private String name;
+        private String description;
+        private Boolean available;
+        private Long requestId;
     }
 
     @Null(groups = {RestAction.Create.class, RestAction.Update.class})
@@ -29,5 +40,12 @@ public class ItemRequestDto {
 
     @Null(groups = {RestAction.Create.class, RestAction.Update.class})
     private LocalDateTime created;
+
+    @Null(groups = {RestAction.Create.class, RestAction.Update.class})
+    private List<Item> items;
+
+    public ItemRequestDto() {
+
+    }
 
 }

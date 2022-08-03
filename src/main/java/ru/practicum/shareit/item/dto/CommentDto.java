@@ -31,4 +31,8 @@ public class CommentDto {
 
     private CommentDto.Item item;
 
+    public CommentDto() {
+
+    }
+
 }
