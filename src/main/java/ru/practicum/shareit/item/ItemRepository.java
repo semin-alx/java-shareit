@@ -25,6 +25,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             "OR (UPPER(description) LIKE CONCAT('%',UPPER(:text),'%'))) " +
             "AND available ORDER BY id /*:pageable*/",
             nativeQuery = true)
-    List<Item> findAvailableByText(String text, Pageable pageable);
+    Page<Item> findAvailableByText(String text, Pageable pageable);
 
 }

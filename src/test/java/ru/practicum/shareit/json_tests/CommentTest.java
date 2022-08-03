@@ -1,4 +1,4 @@
-package ru.practicum.shareit;
+package ru.practicum.shareit.json_tests;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @JsonTest
-public class JsonCommentTest {
+public class CommentTest {
 
     @Autowired
     private JacksonTester<CommentDto> jacksonTester;

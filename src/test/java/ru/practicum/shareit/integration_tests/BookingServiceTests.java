@@ -1,36 +1,28 @@
-package ru.practicum.shareit;
+package ru.practicum.shareit.integration_tests;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.config.PersistenceConfig;
 import ru.practicum.shareit.item.ItemService;
-import ru.practicum.shareit.item.ItemServiceImpl;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.request.ItemRequestServiceImpl;
 import ru.practicum.shareit.user.UserService;
-import ru.practicum.shareit.user.UserServiceImpl;
 import ru.practicum.shareit.user.dto.UserDto;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Transactional
+@SpringBootTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@SpringJUnitConfig({PersistenceConfig.class, BookingServiceImpl.class, ItemServiceImpl.class,
-        UserServiceImpl.class, BookingRepository.class, ItemRequestServiceImpl.class})
-@DataJpaTest
-public class IntegrationTestForBooking {
+@TestPropertySource(locations = "classpath:application.properties")
+public class BookingServiceTests {
 
-    private final TestEntityManager em;
-    private final BookingService bookingService;
+    private final ru.practicum.shareit.booking.BookingService bookingService;
     private final UserService userService;
     private final ItemService itemService;
 

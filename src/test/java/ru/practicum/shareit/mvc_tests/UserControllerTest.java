@@ -1,15 +1,13 @@
-package ru.practicum.shareit;
+package ru.practicum.shareit.mvc_tests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.shareit.user.UserController;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -22,22 +20,17 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(UserController.class)
+@AutoConfigureMockMvc
 public class UserControllerTest {
 
-    @Mock
+    @MockBean
     UserService userService;
 
-    @InjectMocks
-    UserController userController;
-
     private final ObjectMapper mapper = new ObjectMapper();
-    private MockMvc mvc;
 
-    @BeforeEach
-    private void setup() {
-        mvc = MockMvcBuilders.standaloneSetup(userController).build();
-    }
+    @Autowired
+    private MockMvc mvc;
 
     @Test
     public void createUser() throws Exception {
@@ -62,7 +55,7 @@ public class UserControllerTest {
     @Test
     public void updateUser() throws Exception {
 
-        UserDto userDto = new UserDto(1L, "user1", "user1@aaa.ru");
+        UserDto userDto = new UserDto(null, "user1", "user1@aaa.ru");
 
         when(userService.update(anyLong(), any()))
                 .thenReturn(userDto);
@@ -73,7 +66,6 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(1L), Long.class))
                 .andExpect(jsonPath("$.name", is(userDto.getName())))
                 .andExpect(jsonPath("$.email", is(userDto.getEmail())));
 

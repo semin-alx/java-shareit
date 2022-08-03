@@ -1,4 +1,4 @@
-package ru.practicum.shareit;
+package ru.practicum.shareit.mvc_tests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -7,12 +7,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.shareit.request.ItemRequestController;
 import ru.practicum.shareit.request.ItemRequestService;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.user.UserController;
+
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import static org.hamcrest.Matchers.is;
@@ -21,22 +27,17 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(ItemRequestController.class)
+@AutoConfigureMockMvc
 public class ItemRequestControllerTest {
 
-    @Mock
+    @MockBean
     ItemRequestService itemRequestService;
 
-    @InjectMocks
-    ItemRequestController itemRequestController;
-
     private final ObjectMapper mapper = new ObjectMapper();
-    private MockMvc mvc;
 
-    @BeforeEach
-    private void setup() {
-        mvc = MockMvcBuilders.standaloneSetup(itemRequestController).build();
-    }
+    @Autowired
+    private MockMvc mvc;
 
     @Test
     public void createItemRequest() throws Exception {
@@ -62,7 +63,7 @@ public class ItemRequestControllerTest {
     @Test
     public void updateItemRequest() throws Exception {
 
-        ItemRequestDto itemRequestDto1 = new ItemRequestDto(1L, "фффф",
+        ItemRequestDto itemRequestDto1 = new ItemRequestDto(null, "фффф",
                 null, null, null);
 
         when(itemRequestService.update(anyLong(), anyLong(), any()))
@@ -75,7 +76,6 @@ public class ItemRequestControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(itemRequestDto1.getId()), Long.class))
                 .andExpect(jsonPath("$.description", is(itemRequestDto1.getDescription())));
 
     }

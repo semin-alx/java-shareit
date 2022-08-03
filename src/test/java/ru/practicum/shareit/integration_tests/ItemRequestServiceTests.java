@@ -1,32 +1,25 @@
-package ru.practicum.shareit;
+package ru.practicum.shareit.integration_tests;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.config.PersistenceConfig;
 import ru.practicum.shareit.request.ItemRequestService;
-import ru.practicum.shareit.request.ItemRequestServiceImpl;
-import ru.practicum.shareit.request.RequestRepository;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.user.UserService;
-import ru.practicum.shareit.user.UserServiceImpl;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
 
 @Transactional
+@SpringBootTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@SpringJUnitConfig({PersistenceConfig.class, ItemRequestServiceImpl.class,
-        UserServiceImpl.class, RequestRepository.class})
-@DataJpaTest
-public class IntegrationTestForItemRequest {
+@TestPropertySource(locations = "classpath:application.properties")
+public class ItemRequestServiceTests {
 
-    private final TestEntityManager em;
     private final ItemRequestService itemRequestService;
     private final UserService userService;
 
